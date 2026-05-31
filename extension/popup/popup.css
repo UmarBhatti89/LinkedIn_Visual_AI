@@ -1,0 +1,115 @@
+:root {
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --brand-cyan: #06b6d4;
+    --brand-purple: #d946ef;
+    --border-color: #334155;
+}
+
+body {
+    width: 320px;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 16px;
+}
+
+.extension-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-header {
+    text-align: center;
+    padding: 8px 0;
+}
+
+.app-logo {
+    width: 140px;
+    height: auto;
+    margin-bottom: 4px;
+}
+
+.tagline {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--brand-cyan), var(--brand-purple));
+    margin: 16px 0;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 14px;
+}
+
+.group-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.styled-select, #licenseKey {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.styled-select:focus, #licenseKey:focus {
+    border-color: var(--brand-cyan);
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 8px;
+}
+
+#licenseKey {
+    flex: 1;
+}
+
+#saveKeyBtn {
+    background: linear-gradient(135deg, var(--brand-cyan), var(--brand-purple));
+    color: white;
+    border: none;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+#saveKeyBtn:hover {
+    opacity: 0.9;
+}
+
+.status-text {
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.footer {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 12px;
+}

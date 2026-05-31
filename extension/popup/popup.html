@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="extension-container">
+        <div class="brand-header">
+            <img src="../assets/bcreatiq.png" alt="https://bcreatiq.com/" class="app-logo">
+            <p class="tagline">Innovate. Create. Inspire.</p>
+        </div>
+
+        <hr class="divider">
+
+        <div class="settings-group">
+            <label for="licenseKey" class="group-label">Beta Access Key</label>
+            <div class="input-wrapper">
+                <input type="password" id="licenseKey" placeholder="Enter your bCreatiq key...">
+                <button id="saveKeyBtn">Save</button>
+            </div>
+            <span id="keyStatus" class="status-text"></span>
+        </div>
+
+        <div class="settings-group">
+            <label for="toneSelect" class="group-label">Comment Tone</label>
+            <select id="toneSelect" class="styled-select">
+                <option value="Insightful">💡 Insightful (Default)</option>
+                <option value="Casual / Friendly">☕ Casual / Friendly</option>
+                <option value="Witty / Funny">🎭 Witty / Funny</option>
+                <option value="Professional">📈 Professional</option>
+                <option value="Supportive / Warm">🙌 Supportive / Warm</option>
+            </select>
+        </div>
+
+        <div class="settings-group">
+            <label for="lengthSelect" class="group-label">Comment Length</label>
+            <select id="lengthSelect" class="styled-select">
+                <option value="Short">⚡ Short (1 Sentence)</option>
+                <option value="Medium" selected>📝 Medium (2-3 Sentences)</option>
+                <option value="Long">📚 Detailed / Long</option>
+            </select>
+        </div>
+
+        <div class="footer">
+            <p>Version 1.2 | Powering LinkedIn Visual AI</p>
+			   <p>bcreatiq.com | umar@bcreatiq.com</p>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
