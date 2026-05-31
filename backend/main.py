@@ -4,9 +4,10 @@ from pydantic import BaseModel
 from typing import Optional
 from gemini_service import generate_linkedin_comment
 
-app = FastAPI()
+# Initialize FastAPI App
+app = FastAPI(title="bCreatiq LinkedIn AI Comment API")
 
-# CORS Middleware (Jo aapka pehle se chal raha hai)
+# Global CORS Configuration (Vercel ke liye strict permissions open rakhna zaroori hai)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,41 +17,40 @@ app.add_middleware(
 )
 
 # --- BETA ACCESS KEYS LIST ---
-# Aap manually ya script se generate karke yahan keys add kar sakte hain
 VALID_BETA_KEYS = {
     "BCREQ-83A1-92F4",
     "BCREQ-K7X2-P0W9",
     "BCREQ-M5Z1-L3W8",
     "BCREQ-B7V4-Q1X9",
-    "BCREQ-ADMIN-TEST" # Testing ke liye ek easy key
+    "BCREQ-ADMIN-TEST"
 }
 
-# Request Data Model Update
 class CommentRequest(BaseModel):
     post_text: str
     author_name: str
     tone: Optional[str] = "Insightful"
     length: Optional[str] = "Medium"
     image_url: Optional[str] = ""
-    license_key: Optional[str] = ""  # <--- NAYI FIELD FOR ACCESS CONTROL
+    license_key: Optional[str] = ""
 
 class CommentResponse(BaseModel):
     suggested_comment: str
 
+# Root route for Vercel health checks
 @app.get("/")
 def home():
-    return {"message": "bCreatiq LinkedIn AI Comment API is running!"}
+    return {"status": "healthy", "message": "bCreatiq LinkedIn AI Comment API is running on Vercel!"}
 
 @app.post("/generate-comment", response_model=CommentResponse)
 def get_comment(request: CommentRequest):
-    # CRITICAL: License Key Check
+    # License Key Verification
     if not request.license_key or request.license_key not in VALID_BETA_KEYS:
         raise HTTPException(
             status_code=403, 
-            detail="Access Denied: Invalid Beta Key. DM Umar Bhatti on LinkedIn to get a key! https://www.linkedin.com/in/umarfb/ "
+            detail="Access Denied: Invalid Beta Key. DM Abdul Qadeer on LinkedIn to get a key!"
         )
     
-    # Agar key valid hai, toh hi Gemini service call hogi
+    # Gemini Multimodal Execution
     comment = generate_linkedin_comment(
         post_text=request.post_text,
         author_name=request.author_name,
