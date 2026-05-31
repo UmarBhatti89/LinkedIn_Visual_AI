@@ -7,7 +7,6 @@ from gemini_service import generate_linkedin_comment
 # Initialize FastAPI instance
 app = FastAPI(title="bCreatiq LinkedIn AI Comment API")
 
-# Global CORS Configuration for Serverless Extensions
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,13 +29,12 @@ class CommentRequest(BaseModel):
     author_name: str
     tone: Optional[str] = "Insightful"
     length: Optional[str] = "Medium"
-    image_url: Optional[str] = ""
+    image_base64: Optional[str] = "" # Updated field to receive raw pixels
     license_key: Optional[str] = ""
 
 class CommentResponse(BaseModel):
     suggested_comment: str
 
-# Strict Root Endpoint for Vercel Routing Engine
 @app.get("/")
 def home():
     return {
@@ -50,21 +48,20 @@ def get_comment(request: CommentRequest):
     if not request.license_key or request.license_key not in VALID_BETA_KEYS:
         raise HTTPException(
             status_code=403, 
-            detail="Access Denied: Invalid Beta Key. DM Umar Bhatti on LinkedIn to get a key! https://www.linkedin.com/in/umarfb/"
+            detail="Access Denied: Invalid Beta Key. DM Abdul Qadeer on LinkedIn to get a key!"
         )
     
-    # Core Vision / Prompt Service Execution
+    # Core Vision / Prompt Service Execution (Passing base64 directly)
     comment = generate_linkedin_comment(
         post_text=request.post_text,
         author_name=request.author_name,
         tone=request.tone,
         length=request.length,
-        image_url=request.image_url
+        image_base64=request.image_base64
     )
     
     return CommentResponse(suggested_comment=comment)
 
-# --- VERCEL & LOCAL SERVERLESS INITIALIZATION LAYER ---
 import uvicorn
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
