@@ -50,7 +50,7 @@ def get_comment(request: CommentRequest):
     if not request.license_key or request.license_key not in VALID_BETA_KEYS:
         raise HTTPException(
             status_code=403, 
-            detail="Access Denied: Invalid Beta Key. DM Abdul Qadeer on LinkedIn to get a key!"
+            detail="Access Denied: Invalid Beta Key. DM Umar Bhatti on LinkedIn to get a key! https://www.linkedin.com/in/umarfb/"
         )
     
     # Core Vision / Prompt Service Execution
