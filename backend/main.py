@@ -4,10 +4,10 @@ from pydantic import BaseModel
 from typing import Optional
 from gemini_service import generate_linkedin_comment
 
-# Initialize FastAPI App
+# Initialize FastAPI instance
 app = FastAPI(title="bCreatiq LinkedIn AI Comment API")
 
-# Global CORS Configuration (Vercel ke liye strict permissions open rakhna zaroori hai)
+# Global CORS Configuration for Serverless Extensions
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -36,21 +36,24 @@ class CommentRequest(BaseModel):
 class CommentResponse(BaseModel):
     suggested_comment: str
 
-# Root route for Vercel health checks
+# Strict Root Endpoint for Vercel Routing Engine
 @app.get("/")
 def home():
-    return {"status": "healthy", "message": "bCreatiq LinkedIn AI Comment API is running on Vercel!"}
+    return {
+        "status": "healthy", 
+        "message": "bCreatiq LinkedIn AI Comment API is running flawlessly on Vercel!"
+    }
 
 @app.post("/generate-comment", response_model=CommentResponse)
 def get_comment(request: CommentRequest):
-    # License Key Verification
+    # License Key Security Layer
     if not request.license_key or request.license_key not in VALID_BETA_KEYS:
         raise HTTPException(
             status_code=403, 
             detail="Access Denied: Invalid Beta Key. DM Abdul Qadeer on LinkedIn to get a key!"
         )
     
-    # Gemini Multimodal Execution
+    # Core Vision / Prompt Service Execution
     comment = generate_linkedin_comment(
         post_text=request.post_text,
         author_name=request.author_name,
