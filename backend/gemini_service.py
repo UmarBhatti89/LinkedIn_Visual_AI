@@ -1,6 +1,6 @@
 import os
 import io
-import requests
+import base64
 from PIL import Image
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -21,7 +21,7 @@ def get_all_gemini_keys():
         keys.append(os.getenv("GEMINI_API_KEY"))
     return keys
 
-def generate_linkedin_comment(post_text: str, author_name: str, tone: str, length: str, image_url: str = "") -> str:
+def generate_linkedin_comment(post_text: str, author_name: str, tone: str, length: str, image_base64: str = "") -> str:
     # 1. Fetch all rotated keys
     api_keys = get_all_gemini_keys()
     if not api_keys:
@@ -35,7 +35,7 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
     else:
         length_instruction = "Keep it balanced, maximum 2 to 3 concise sentences."
 
-    # Clean string template
+    # Clean string template (Merged with your original classification and new empathy filters)
     prompt_template = """
     You are a highly adaptable, emotionally intelligent LinkedIn user. Your core skill is matching the exact context, intent, visual details, and the EXACT LANGUAGE/SCRIPT of the post.
 
@@ -52,6 +52,7 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
       * If it's an Islamic Quote, Hadith, or Blessing: Write a highly respectful, aligned, and meaningful response matching its exact script.
       * If it's a Certificate or Job Change: Directly congratulate them on that specific achievement or topic.
       * If it's a Project Showcase or UI Design: Praise the specific layout, stack, or visual output.
+      * If it's a news/humanitarian crisis post (e.g., Gaza, poverty, human suffering): Be deeply empathetic, human, and supportive. DO NOT use generic corporate, trade, or innovation comments.
 
     REQUIRED TONE: {selected_tone}
     REQUIRED LENGTH RULE: {selected_length}
@@ -74,21 +75,20 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
         content=post_text
     )
 
-    # Image Parsing Section (Pehle hi download karke rakh lete hain taake loop me baar baar na ho)
+    # Image Parsing Section: Decodes incoming Base64 data inside memory (Bypasses LinkedIn network blocking)
     img = None
-    if image_url and image_url.startswith("http"):
+    if image_base64:
         try:
-            print(f"[BACKEND] Simulating browser fetch for image...")
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
-            }
-            response = requests.get(image_url, headers=headers, timeout=7)
-            if response.status_code == 200:
-                img = Image.open(io.BytesIO(response.content))
-                print("[BACKEND] Image parsed successfully.")
+            print("[BACKEND] Decoding incoming Base64 image payload from browser...")
+            # Agar browser ne data URI prefix (data:image/jpeg;base64,) lagaya ho to use saaf karein
+            if "," in image_base64:
+                image_base64 = image_base64.split(",")[1]
+                
+            img_data = base64.b64decode(image_base64)
+            img = Image.open(io.BytesIO(img_data))
+            print("[BACKEND] Base64 Image parsed successfully into PIL instance.")
         except Exception as img_err:
-            print(f"[BACKEND] Image pre-processing failed: {img_err}")
+            print(f"[BACKEND] Base64 image decoding failed: {img_err}")
 
     # 2. KEY ROTATION FAILOVER LOOP
     for idx, current_key in enumerate(api_keys):
@@ -106,7 +106,7 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
             return ai_response.text.strip()
 
         except Exception as api_error:
-            # Agar limit khatam ho ya error aaye, toh loop agli key par chala jayega
+            # Agar limit khatam ho ya error aaye, toh loop agri key par chala jayega
             print(f"[API WARN] Key #{idx + 1} failed or hit rate-limit. Error: {str(api_error)}")
             print("[API ROTATION] Switching to next available fallback key...")
             continue # Agli key par jump karein
