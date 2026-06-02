@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-
 def get_all_gemini_keys():
     """.env se saari available keys load karne ke liye"""
     keys = []
@@ -22,10 +21,7 @@ def get_all_gemini_keys():
         keys.append(os.getenv("GEMINI_API_KEY"))
     return keys
 
-
-def generate_linkedin_comment(
-    post_text: str, author_name: str, tone: str, length: str, image_base64: str = ""
-) -> str:
+def generate_linkedin_comment(post_text: str, author_name: str, tone: str, length: str, image_base64: str = "") -> str:
     # 1. Fetch all rotated keys
     api_keys = get_all_gemini_keys()
     if not api_keys:
