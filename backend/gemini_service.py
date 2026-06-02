@@ -2,26 +2,30 @@ import os
 import io
 import base64
 from PIL import Image
-import google.generativeai as genai
+from google import genai  # Google's new official SDK package
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
+
 def get_all_gemini_keys():
     """.env se saari available keys load karne ke liye"""
     keys = []
-    for i in range(1, 6): # 1 se lekar 5 tak check karega
+    for i in range(1, 6):  # 1 se lekar 5 tak check karega
         key = os.getenv(f"GEMINI_API_KEY_{i}")
         if key:
             keys.append(key)
-    
+
     # Backup: Agar dynamic keys na milen toh purani default key use karein
     if not keys and os.getenv("GEMINI_API_KEY"):
         keys.append(os.getenv("GEMINI_API_KEY"))
     return keys
 
-def generate_linkedin_comment(post_text: str, author_name: str, tone: str, length: str, image_base64: str = "") -> str:
+
+def generate_linkedin_comment(
+    post_text: str, author_name: str, tone: str, length: str, image_base64: str = ""
+) -> str:
     # 1. Fetch all rotated keys
     api_keys = get_all_gemini_keys()
     if not api_keys:
@@ -35,7 +39,7 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
     else:
         length_instruction = "Keep it balanced, maximum 2 to 3 concise sentences."
 
-    # Clean string template (Merged with your original classification and new empathy filters)
+    # Prompt Template
     prompt_template = """
     You are a highly adaptable, emotionally intelligent LinkedIn user. Your core skill is matching the exact context, intent, visual details, and the EXACT LANGUAGE/SCRIPT of the post.
 
@@ -72,44 +76,47 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
         selected_tone=tone,
         selected_length=length_instruction,
         author=author_name,
-        content=post_text
+        content=post_text,
     )
 
-    # Image Parsing Section: Decodes incoming Base64 data inside memory (Bypasses LinkedIn network blocking)
+    # Decode incoming Base64 image payload inside server memory
     img = None
     if image_base64:
         try:
             print("[BACKEND] Decoding incoming Base64 image payload from browser...")
-            # Agar browser ne data URI prefix (data:image/jpeg;base64,) lagaya ho to use saaf karein
             if "," in image_base64:
                 image_base64 = image_base64.split(",")[1]
-                
+
             img_data = base64.b64decode(image_base64)
             img = Image.open(io.BytesIO(img_data))
             print("[BACKEND] Base64 Image parsed successfully into PIL instance.")
         except Exception as img_err:
             print(f"[BACKEND] Base64 image decoding failed: {img_err}")
 
-    # 2. KEY ROTATION FAILOVER LOOP
+    # 2. KEY ROTATION FAILOVER LOOP (Updated for Google's New GenAI Client)
     for idx, current_key in enumerate(api_keys):
         try:
-            print(f"[API ROTATION] Attempting generation with Key #{idx + 1}...")
-            genai.configure(api_key=current_key)
-            model = genai.GenerativeModel('gemini-3.1-flash-lite')
+            print(f"[API ROTATION] Attempting generation with Key #{idx + 1} using New SDK...")
 
+            # Google's New SDK client instantiation
+            client = genai.Client(api_key=current_key)
+
+            # Creating request contents array
+            contents_payload = [final_prompt]
             if img:
-                ai_response = model.generate_content([final_prompt, img])
-            else:
-                ai_response = model.generate_content(final_prompt)
-            
+                contents_payload.append(img)
+
+            # Generating content using the updated SDK structure
+            ai_response = client.models.generate_content(
+                model="gemini-3.1-flash-lite", contents=contents_payload
+            )
+
             print(f"[BACKEND] Success! Comment generated using Key #{idx + 1}")
             return ai_response.text.strip()
 
         except Exception as api_error:
-            # Agar limit khatam ho ya error aaye, toh loop agri key par chala jayega
             print(f"[API WARN] Key #{idx + 1} failed or hit rate-limit. Error: {str(api_error)}")
             print("[API ROTATION] Switching to next available fallback key...")
-            continue # Agli key par jump karein
+            continue
 
-    # Agar saari keys fail ho jayen
     return "Error: All configured Gemini API keys hit rate limits or failed. Please try again later."
