@@ -116,3 +116,64 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
             continue
 
     return "Error: All configured Gemini API keys hit rate limits or failed. Please try again later."
+
+# ==========================================
+# FEATURE UPGRADE: THREAD-AWARE REPLY ENGINE
+# ==========================================
+def generate_linkedin_reply(post_text: str, my_comment: str, their_reply: str, tone: str, length: str) -> str:
+    api_keys = get_all_gemini_keys()
+    if not api_keys:
+        return "Error: No Gemini API keys configured on server."
+
+    if length == "Short":
+        length_instruction = "Strictly maximum 1 short, punchy sentence."
+    elif length == "Long":
+        length_instruction = "Provide a detailed response with 3 to 4 sentences."
+    else:
+        length_instruction = "Keep it balanced, maximum 2 to 3 concise sentences."
+
+    prompt_template = """
+    You are engaged in an ongoing LinkedIn conversation thread. Your goal is to reply to a user who just commented on your thread, maintaining a completely natural, human, and professional tone.
+
+    CRITICAL RULE:
+    - Write the response in the EXACT same language and script used in 'Their Reply'. If they replied in Roman Urdu, you must answer in Roman Urdu. If English, answer in English.
+
+    CONTEXT TRACE:
+    1. Original Post Content: "{post}"
+    2. My Previous Comment: "{my_old_comment}"
+    3. Their Reply to Me: "{reply_to_me}"
+
+    REQUIRED TONE: {selected_tone}
+    REQUIRED LENGTH RULE: {selected_length}
+
+    HUMANITARIAN RULES:
+    - Reply directly to the author of 'Their Reply'. Do NOT sound robotic.
+    - No corporate filler words or hashtags. Max 1 emoji.
+
+    Write the final reply directly below:
+    """
+
+    final_prompt = prompt_template.format(
+        post=post_text,
+        my_old_comment=my_comment,
+        reply_to_me=their_reply,
+        selected_tone=tone,
+        selected_length=length_instruction
+    )
+
+    # KEY ROTATION LOOP
+    for idx, current_key in enumerate(api_keys):
+        try:
+            print(f"[REPLY ENGINE] Attempting with Key #{idx + 1}...")
+            client = genai.Client(api_key=current_key)
+            
+            ai_response = client.models.generate_content(
+                model="gemini-1.5-flash", 
+                contents=[final_prompt]
+            )
+            return ai_response.text.strip()
+        except Exception as api_error:
+            print(f"[REPLY WARN] Key #{idx + 1} failed: {str(api_error)}")
+            continue
+
+    return "Error: Generation failed across all keys."
