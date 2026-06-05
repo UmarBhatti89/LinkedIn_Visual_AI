@@ -138,6 +138,11 @@ def generate_linkedin_reply(post_text: str, my_comment: str, their_reply: str, t
     CRITICAL RULE:
     - Write the response in the EXACT same language and script used in 'Their Reply'. If they replied in Roman Urdu, you must answer in Roman Urdu. If English, answer in English.
 
+    CRITICAL CONVERSATIONAL DEPTH RULE:
+    - Analyze the depth of 'Their Reply to Me'. 
+    - If it is a short courtesy reply (e.g., "Thanks", "Great", "Agreed", "True"), provide a short, polite, and punchy acknowledgement. DO NOT over-explain or write long paragraphs.
+    - If it contains a question, deep thought, or critique related to the post, read the 'Original Post Content' thoroughly, analyze 'My Previous Comment', and provide a deeply contextual, intellectual, and high-value counter-reply.
+
     CONTEXT TRACE:
     1. Original Post Content: "{post}"
     2. My Previous Comment: "{my_old_comment}"
