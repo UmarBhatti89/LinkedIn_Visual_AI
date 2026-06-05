@@ -61,6 +61,39 @@ def get_comment(request: CommentRequest):
     )
     
     return CommentResponse(suggested_comment=comment)
+    
+# ==========================================
+# FEATURE UPGRADE: SMART REPLY ENDPOINT
+# ==========================================
+from gemini_service import generate_linkedin_reply
+
+class ReplyRequest(BaseModel):
+    post_text: str
+    my_comment: str
+    their_reply: str
+    tone: Optional[str] = "Insightful"
+    length: Optional[str] = "Medium"
+    license_key: Optional[str] = ""
+
+@app.post("/generate-reply", response_model=CommentResponse)
+def get_reply(request: ReplyRequest):
+    # Security Layer
+    if not request.license_key or request.license_key not in VALID_BETA_KEYS:
+        raise HTTPException(
+            status_code=403, 
+            detail="Access Denied: Invalid Beta Key."
+        )
+    
+    # Thread-aware Generation
+    reply = generate_linkedin_reply(
+        post_text=request.post_text,
+        my_comment=request.my_comment,
+        their_reply=request.their_reply,
+        tone=request.tone,
+        length=request.length
+    )
+    
+    return CommentResponse(suggested_comment=reply)
 
 import uvicorn
 if __name__ == "__main__":
