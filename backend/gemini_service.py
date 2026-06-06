@@ -69,9 +69,9 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
     
     Write the final comment directly below:
     """
-    
 
-    final_prompt = prompt_template.format(
+    # prompt_template ki jagah PROMPT_COMMENT likhein
+    final_prompt = PROMPT_COMMENT.format(
         selected_tone=tone,
         selected_length=length_instruction,
         author=author_name,
