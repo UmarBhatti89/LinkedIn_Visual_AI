@@ -176,7 +176,8 @@ def generate_linkedin_reply(post_text: str, my_comment: str, their_reply: str, t
     Write the final natural human reply directly below:
     """
 
-    final_prompt = prompt_template.format(
+    # prompt_template ki jagah PROMPT_REPLY likhein
+    final_prompt = PROMPT_REPLY.format(
         post=post_text,
         my_old_comment=my_comment,
         reply_to_me=their_reply,
@@ -184,7 +185,9 @@ def generate_linkedin_reply(post_text: str, my_comment: str, their_reply: str, t
         selected_length=length_instruction
     )
 
-    # KEY ROTATION LOOP
+    # ==========================================
+    # KEY ROTATION LOOP (For generate_linkedin_reply)
+    # ==========================================
     for idx, current_key in enumerate(api_keys):
         try:
             print(f"[REPLY ENGINE] Attempting with Key #{idx + 1}...")
@@ -194,9 +197,12 @@ def generate_linkedin_reply(post_text: str, my_comment: str, their_reply: str, t
                 model="gemini-1.5-flash", 
                 contents=[final_prompt]
             )
+            print(f"[BACKEND] Success! Reply generated using Key #{idx + 1}")
             return ai_response.text.strip()
         except Exception as api_error:
             print(f"[REPLY WARN] Key #{idx + 1} failed: {str(api_error)}")
             continue
 
-    return "Error: Generation failed across all keys."
+    return "Error: Reply generation failed across all keys."
+
+    
