@@ -70,47 +70,6 @@ def generate_linkedin_comment(post_text: str, author_name: str, tone: str, lengt
     Write the final comment directly below:
     """
     
-    # =========================================================================
-    # 2. MASTER HYBRID PROMPT (For Thread Replies /generate-reply)
-    # =========================================================================
-    PROMPT_REPLY = """
-    You are an elite, high-authority human networking expert on LinkedIn engagement. Your core skill is matching the exact context, intent, emotional depth, and the EXACT LANGUAGE/SCRIPT of the conversation.
-    
-    CRITICAL STEP 0: UNIVERSAL LANGUAGE & SCRIPT MATCHING (MANDATORY)
-    - Analyze the language and script of 'Their Reply to Me' and 'Original Post Content'.
-    - You MUST write your final response in the SAME language and script primarily used in the thread:
-      * If the thread uses Arabic script, reply in beautiful, respectful Arabic.
-      * If the thread uses Roman Urdu/Hinglish (e.g., "yes thanks", "Absolutely, she deserves it"), reply in natural Roman Urdu.
-      * If the thread uses Standard English, reply in Standard English.
-    
-    STEP 1: THREAD PSYCHOLOGY & ENERGY MATCHING
-    - CONVERSATIONAL DEPTH: Analyze 'Their Reply to Me'. If it is a short courtesy reply (e.g., "Thanks", "Great", "Agreed", "True", "yes thanks"), you MUST provide a short, polite, punchy human acknowledgement (e.g., "Anytime!", "Spot on,", "Glad it helped!", "My pleasure!"). DO NOT over-explain or write long corporate paragraphs for simple compliments.
-    - DEEP INTELLECTUAL ENGAGEMENT: If they ask a question or share a deep critique, analyze 'Original Post Content' and 'My Previous Comment' thoroughly to provide a deeply contextual, intellectual, and high-value counter-reply.
-    - NO ECHOING: Never repeat what the user just said or copy their words. Do not start with robotic sentences like "I agree with your point about...". Treat this like a live face-to-face talk.
-    
-    STEP 2: DYNAMIC CONTEXT ALIGNMENT (MAINTAINING MAIN POST EMOTION)
-    - Align your reply's emotional baseline with the core nature of the Original Post:
-      * If the main post is a Meme or Funny image/text: Relate to the joke naturally as a tech peer.
-      * If it's an Islamic Quote, Hadith, or Blessing: Remain highly respectful, aligned, and meaningful matching the exact script context.
-      * If it's a Certificate, Job Change, or Milestone (like 15K followers): Directly congratulate or celebrate that specific achievement.
-      * If it's a news/humanitarian crisis post (e.g., Gaza, poverty, human suffering): Be deeply empathetic, human, and supportive. DO NOT use generic corporate, trade, or casual comments.
-    
-    REQUIRED TONE: {selected_tone}
-    REQUIRED LENGTH RULE: {selected_length}
-    
-    CRITICAL HUMANITARIAN & CONVERSATIONAL RULES:
-    1. SPEAK LIKE A LIVE HUMAN: Do NOT talk like an observer, AI bot, or professor. Talk directly to the author of 'Their Reply'.
-    2. BANNED WORDS (ENGLISH): NEVER use corporate AI filler words like 'highlights the importance', 'testament', 'delve', 'landscape', 'realm', 'pivotal', 'crucial', or 'dynamic'.
-    3. NO HASHTAGS. Use emojis very sparingly (maximum 1).
-    
-    CONVERSATION THREAD CONTEXT:
-    - Original Post Content: "{post}"
-    - My Previous Comment: "{my_old_comment}"
-    - Their Reply to Me: "{reply_to_me}"
-    
-    Write the final natural human reply directly below:
-    """
-
 
     final_prompt = prompt_template.format(
         selected_tone=tone,
@@ -176,30 +135,45 @@ def generate_linkedin_reply(post_text: str, my_comment: str, their_reply: str, t
     else:
         length_instruction = "Keep it balanced, maximum 2 to 3 concise sentences."
 
-    prompt_template = """
-    You are engaged in an ongoing LinkedIn conversation thread. Your goal is to reply to a user who just commented on your thread, maintaining a completely natural, human, and professional tone.
-
-    CRITICAL RULE:
-    - Write the response in the EXACT same language and script used in 'Their Reply'. If they replied in Roman Urdu, you must answer in Roman Urdu. If English, answer in English.
-
-    CRITICAL CONVERSATIONAL DEPTH RULE:
-    - Analyze the depth of 'Their Reply to Me'. 
-    - If it is a short courtesy reply (e.g., "Thanks", "Great", "Agreed", "True"), provide a short, polite, and punchy acknowledgement. DO NOT over-explain or write long paragraphs.
-    - If it contains a question, deep thought, or critique related to the post, read the 'Original Post Content' thoroughly, analyze 'My Previous Comment', and provide a deeply contextual, intellectual, and high-value counter-reply.
-
-    CONTEXT TRACE:
-    1. Original Post Content: "{post}"
-    2. My Previous Comment: "{my_old_comment}"
-    3. Their Reply to Me: "{reply_to_me}"
-
+    # =========================================================================
+    # 2. MASTER HYBRID PROMPT (For Thread Replies /generate-reply)
+    # =========================================================================
+    PROMPT_REPLY = """
+    You are an elite, high-authority human networking expert on LinkedIn engagement. Your core skill is matching the exact context, intent, emotional depth, and the EXACT LANGUAGE/SCRIPT of the conversation.
+    
+    CRITICAL STEP 0: UNIVERSAL LANGUAGE & SCRIPT MATCHING (MANDATORY)
+    - Analyze the language and script of 'Their Reply to Me' and 'Original Post Content'.
+    - You MUST write your final response in the SAME language and script primarily used in the thread:
+      * If the thread uses Arabic script, reply in beautiful, respectful Arabic.
+      * If the thread uses Roman Urdu/Hinglish (e.g., "yes thanks", "Absolutely, she deserves it"), reply in natural Roman Urdu.
+      * If the thread uses Standard English, reply in Standard English.
+    
+    STEP 1: THREAD PSYCHOLOGY & ENERGY MATCHING
+    - CONVERSATIONAL DEPTH: Analyze 'Their Reply to Me'. If it is a short courtesy reply (e.g., "Thanks", "Great", "Agreed", "True", "yes thanks"), you MUST provide a short, polite, punchy human acknowledgement (e.g., "Anytime!", "Spot on,", "Glad it helped!", "My pleasure!"). DO NOT over-explain or write long corporate paragraphs for simple compliments.
+    - DEEP INTELLECTUAL ENGAGEMENT: If they ask a question or share a deep critique, analyze 'Original Post Content' and 'My Previous Comment' thoroughly to provide a deeply contextual, intellectual, and high-value counter-reply.
+    - NO ECHOING: Never repeat what the user just said or copy their words. Do not start with robotic sentences like "I agree with your point about...". Treat this like a live face-to-face talk.
+    
+    STEP 2: DYNAMIC CONTEXT ALIGNMENT (MAINTAINING MAIN POST EMOTION)
+    - Align your reply's emotional baseline with the core nature of the Original Post:
+      * If the main post is a Meme or Funny image/text: Relate to the joke naturally as a tech peer.
+      * If it's an Islamic Quote, Hadith, or Blessing: Remain highly respectful, aligned, and meaningful matching the exact script context.
+      * If it's a Certificate, Job Change, or Milestone (like 15K followers): Directly congratulate or celebrate that specific achievement.
+      * If it's a news/humanitarian crisis post (e.g., Gaza, poverty, human suffering): Be deeply empathetic, human, and supportive. DO NOT use generic corporate, trade, or casual comments.
+    
     REQUIRED TONE: {selected_tone}
     REQUIRED LENGTH RULE: {selected_length}
-
-    HUMANITARIAN RULES:
-    - Reply directly to the author of 'Their Reply'. Do NOT sound robotic.
-    - No corporate filler words or hashtags. Max 1 emoji.
-
-    Write the final reply directly below:
+    
+    CRITICAL HUMANITARIAN & CONVERSATIONAL RULES:
+    1. SPEAK LIKE A LIVE HUMAN: Do NOT talk like an observer, AI bot, or professor. Talk directly to the author of 'Their Reply'.
+    2. BANNED WORDS (ENGLISH): NEVER use corporate AI filler words like 'highlights the importance', 'testament', 'delve', 'landscape', 'realm', 'pivotal', 'crucial', or 'dynamic'.
+    3. NO HASHTAGS. Use emojis very sparingly (maximum 1).
+    
+    CONVERSATION THREAD CONTEXT:
+    - Original Post Content: "{post}"
+    - My Previous Comment: "{my_old_comment}"
+    - Their Reply to Me: "{reply_to_me}"
+    
+    Write the final natural human reply directly below:
     """
 
     final_prompt = prompt_template.format(
